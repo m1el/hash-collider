@@ -1,7 +1,7 @@
 use core::ops::{ControlFlow};
 use crate::{Collider, HashAdapter};
 
-pub fn stat_printer<A: HashAdapter>(interval: u64, on_found: ControlFlow<(), ()>) -> impl Fn(&Collider<A>) {
+pub fn stat_printer<A: HashAdapter>(interval: u64, bits: u8, on_found: ControlFlow<(), ()>) -> impl Fn(&Collider<A>) {
     move |collider| {
         println!("{t:>9} {h:>14} {hps:>9} {et:>6} {c:>5} {rh:>5} {s:>5} {bo:>5} {l:>6} {e:>5}",
             t="trails", h="hashes", hps="mh/s", et="ETA", c="coll",
@@ -20,7 +20,7 @@ pub fn stat_printer<A: HashAdapter>(interval: u64, on_found: ControlFlow<(), ()>
             prev_t = now;
             prev_h = stats.hashes;
 
-            let expected_time = stats.estimate_time_to_hash(64, start.elapsed().as_secs_f64());
+            let expected_time = stats.estimate_time_to_hash(bits, start.elapsed().as_secs_f64());
 
             println!("{t:>9} {h:>14} {hps:>9.2} {et:>6.1} {c:>5} {rh:>5} {s:>5} {bo:>5} {l:>6} {e:>5}",
                 t=stats.trails, h=stats.hashes, hps=hps/1e6, et=expected_time,

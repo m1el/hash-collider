@@ -262,6 +262,6 @@ mod tests {
 
         let mut collider = Collider::new(MyHash);
         let thread_count = num_cpus::get();
-        collider.run(thread_count, stat_printer(1, ControlFlow::Break(())));
+        collider.run(thread_count, stat_printer(1, 42, ControlFlow::Break(())));
     }
 }

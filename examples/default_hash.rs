@@ -46,5 +46,5 @@ impl HashAdapter for MyHash {
 fn main() {
     let mut collider = Collider::new(MyHash);
     let thread_count = num_cpus::get();
-    collider.run(thread_count, stat_printer(1, ControlFlow::Continue(())));
+    collider.run(thread_count, stat_printer(1, 64, ControlFlow::Continue(())));
 }
