@@ -3,11 +3,11 @@
 mod sip128;
 mod stable_hasher;
 
-use core::ops::ControlFlow;
-use rand::{Rng};
-use std::hash::Hasher;
 use crate::stable_hasher::{HashStable, HashingControls, StableHasher};
-use hash_collider::{Collider, HashAdapter, stat_printer};
+use core::ops::ControlFlow;
+use hash_collider::{stat_printer, Collider, HashAdapter};
+use rand::Rng;
+use std::hash::Hasher;
 
 const IN_PLAYGROUND_WRAPPER: bool = true;
 // const I_WANT_TO_DEBUG_DEF_ID: bool = false;
@@ -19,7 +19,12 @@ fn hash_of<T: HashStable<CTX>, CTX>(hcx: &mut CTX, val: T) -> (u64, u64) {
     hasher.finalize()
 }
 
-fn make_mod_id(crate_name: &str, is_exe: bool, version: &str, mut metadata: Vec<String>) -> (u64, u64) {
+fn make_mod_id(
+    crate_name: &str,
+    is_exe: bool,
+    version: &str,
+    mut metadata: Vec<String>,
+) -> (u64, u64) {
     let mut hcx = HashingControls { hash_spans: false };
     let mut hasher = StableHasher::new();
     hasher.write_str(crate_name);
@@ -90,7 +95,7 @@ fn type_id_of_struct(mod_id: (u64, u64), name: &str, field: &str) -> u64 {
         // visibility
         hasher.write_isize(0);
         // scope of visibility
-        // mod_id.hash_stable(&mut hcx, &mut hasher); 
+        // mod_id.hash_stable(&mut hcx, &mut hasher);
         hasher.write_isize(2);
         hasher.write_u32(0);
         // AdtFlags
@@ -131,7 +136,7 @@ fn field_did(mod_id: (u64, u64), name: &str, field: &str) -> u64 {
     field_did.1
 }
 
-fn write_hex(dst: &mut[u8], value: u64) {
+fn write_hex(dst: &mut [u8], value: u64) {
     fn hex(x: u64) -> u8 {
         assert!(x <= 15, "YOU LIED");
         (x as u8) + if x <= 9 { b'0' } else { b'a' - 10 }
@@ -188,14 +193,18 @@ impl HashAdapter for TypeIdHash {
     }
 
     fn report_collision(&self, a: Self::Point, b: Self::Point) -> ControlFlow<(), ()> {
-        println!("found collision! Foo {{ x{:016x?}: usize }} Bar {{ x{:x?}: usize }}",
-            a, b);
+        println!(
+            "found collision! Foo {{ x{:016x?}: usize }} Bar {{ x{:x?}: usize }}",
+            a, b
+        );
         ControlFlow::Continue(())
     }
 }
 
 fn main() {
-    let hash = TypeIdHash::new("playground", true,
+    let hash = TypeIdHash::new(
+        "playground",
+        true,
         "1.64.0-nightly (7665c3543 2022-07-06)",
         vec!["a0ecb98bfb1b38c8".to_owned()],
     );

@@ -31,10 +31,11 @@ pub trait StableHasherResult: Sized {
 }
 
 impl StableHasher {
-
     #[inline]
     pub fn new() -> Self {
-        StableHasher { state: SipHasher128::new_with_keys(0, 0) }
+        StableHasher {
+            state: SipHasher128::new_with_keys(0, 0),
+        }
     }
 
     #[inline]
@@ -364,7 +365,6 @@ where
     }
 }
 
-
 impl<T: HashStable<CTX>, CTX> HashStable<CTX> for [T] {
     fn hash_stable(&self, ctx: &mut CTX, hasher: &mut StableHasher) {
         self.len().hash_stable(ctx, hasher);
@@ -580,11 +580,17 @@ where
 {
     #[inline]
     fn hash_stable(&self, hcx: &mut HCX, hasher: &mut StableHasher) {
-        stable_hash_reduce(hcx, hasher, self.iter(), self.len(), |hasher, hcx, (key, value)| {
-            let key = key.to_stable_hash_key(hcx);
-            key.hash_stable(hcx, hasher);
-            value.hash_stable(hcx, hasher);
-        });
+        stable_hash_reduce(
+            hcx,
+            hasher,
+            self.iter(),
+            self.len(),
+            |hasher, hcx, (key, value)| {
+                let key = key.to_stable_hash_key(hcx);
+                key.hash_stable(hcx, hasher);
+                value.hash_stable(hcx, hasher);
+            },
+        );
     }
 }
 
@@ -607,11 +613,17 @@ where
     V: HashStable<HCX>,
 {
     fn hash_stable(&self, hcx: &mut HCX, hasher: &mut StableHasher) {
-        stable_hash_reduce(hcx, hasher, self.iter(), self.len(), |hasher, hcx, (key, value)| {
-            let key = key.to_stable_hash_key(hcx);
-            key.hash_stable(hcx, hasher);
-            value.hash_stable(hcx, hasher);
-        });
+        stable_hash_reduce(
+            hcx,
+            hasher,
+            self.iter(),
+            self.len(),
+            |hasher, hcx, (key, value)| {
+                let key = key.to_stable_hash_key(hcx);
+                key.hash_stable(hcx, hasher);
+                value.hash_stable(hcx, hasher);
+            },
+        );
     }
 }
 

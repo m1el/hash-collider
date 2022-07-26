@@ -1,16 +1,16 @@
-mod stats;
 mod printer;
+mod stats;
 
-use rand::Rng;
-use core::hash::Hash;
 use core::fmt::Debug;
+use core::hash::Hash;
 use core::ops::ControlFlow;
 use core::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Mutex;
+use rand::Rng;
 use std::collections::{hash_map::Entry, HashMap};
+use std::sync::Mutex;
 
-use crate::stats::{AtomicStats, Stats};
 pub use crate::printer::stat_printer;
+use crate::stats::{AtomicStats, Stats};
 
 pub trait StopSignal {
     fn stop(&self);
@@ -42,10 +42,8 @@ enum TraceResult<P> {
     NotFound,
 }
 
-type TrailRecords<A> = HashMap<
-    <A as HashAdapter>::Point,
-    Vec<TrailInfo<<A as HashAdapter>::Point>>
->;
+type TrailRecords<A> =
+    HashMap<<A as HashAdapter>::Point, Vec<TrailInfo<<A as HashAdapter>::Point>>>;
 
 pub struct Collider<A: HashAdapter> {
     adapter: A,
@@ -74,8 +72,14 @@ impl<A: HashAdapter> Collider<A> {
         a: &TrailInfo<A::Point>,
         b: &TrailInfo<A::Point>,
     ) -> TraceResult<A::Point> {
-        let TrailInfo { start: mut a, length: mut a_len } = a;
-        let TrailInfo { start: mut b, length: mut b_len } = b;
+        let TrailInfo {
+            start: mut a,
+            length: mut a_len,
+        } = a;
+        let TrailInfo {
+            start: mut b,
+            length: mut b_len,
+        } = b;
 
         while b_len > a_len {
             let bifurcation = adapter.bifurcation(b);
@@ -100,11 +104,10 @@ impl<A: HashAdapter> Collider<A> {
             let next_b = adapter.next_point(b, b_bifurcation);
             if next_a == next_b {
                 return match (a_bifurcation, b_bifurcation) {
-                    (false, false) | (true, true) =>
-                        TraceResult::SelfCollision(a, b),
+                    (false, false) | (true, true) => TraceResult::SelfCollision(a, b),
                     (true, false) => TraceResult::GoodCollision(a, b),
                     (false, true) => TraceResult::GoodCollision(b, a),
-                }
+                };
             }
 
             a = next_a;
@@ -162,7 +165,8 @@ impl<A: HashAdapter> Collider<A> {
                 lock
             } else {
                 self.stats.lock_contentions.fetch_add(1, Ordering::Relaxed);
-                self.trails.lock()
+                self.trails
+                    .lock()
                     .expect("some other thread has crashed and poisoned a mutex")
             };
 
@@ -226,9 +230,7 @@ mod tests {
             hasher.finish() & !(!0 << 42)
         }
 
-        assert!(
-            my_hash((0, 0xedcb60beda96782b)) == my_hash((42, 0x9ecd6bc1caefa5f4))
-        );
+        assert!(my_hash((0, 0xedcb60beda96782b)) == my_hash((42, 0x9ecd6bc1caefa5f4)));
 
         impl HashAdapter for MyHash {
             type Point = u64;

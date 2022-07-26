@@ -4,8 +4,8 @@ use std::hash::Hasher;
 use std::mem::{self, MaybeUninit};
 use std::ptr;
 
-#[cfg(test)]
-mod tests;
+// #[cfg(test)]
+// mod tests;
 
 // The SipHash algorithm operates on 8-byte chunks.
 const ELEM_SIZE: usize = mem::size_of::<u64>();
@@ -64,7 +64,9 @@ struct State {
 }
 
 macro_rules! compress {
-    ($state:expr) => {{ compress!($state.v0, $state.v1, $state.v2, $state.v3) }};
+    ($state:expr) => {{
+        compress!($state.v0, $state.v1, $state.v2, $state.v3)
+    }};
     ($v0:expr, $v1:expr, $v2:expr, $v3:expr) => {{
         $v0 = $v0.wrapping_add($v1);
         $v1 = $v1.rotate_left(13);
@@ -262,7 +264,11 @@ impl SipHasher128 {
         // This function should only be called when the write fills the buffer.
         // Therefore, when LEN == 1, the new `self.nbuf` must be zero.
         // LEN is statically known, so the branch is optimized away.
-        self.nbuf = if LEN == 1 { 0 } else { nbuf + LEN - BUFFER_SIZE };
+        self.nbuf = if LEN == 1 {
+            0
+        } else {
+            nbuf + LEN - BUFFER_SIZE
+        };
         self.processed += BUFFER_SIZE;
     }
 
@@ -338,7 +344,9 @@ impl SipHasher128 {
         let extra_bytes_left = input_left % ELEM_SIZE;
 
         for _ in 0..elems_left {
-            let elem = (msg.as_ptr().add(processed) as *const u64).read_unaligned().to_le();
+            let elem = (msg.as_ptr().add(processed) as *const u64)
+                .read_unaligned()
+                .to_le();
             self.state.v3 ^= elem;
             Sip24Rounds::c_rounds(&mut self.state);
             self.state.v0 ^= elem;

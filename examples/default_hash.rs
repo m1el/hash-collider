@@ -1,6 +1,6 @@
 use core::ops::ControlFlow;
+use hash_collider::{stat_printer, Collider, HashAdapter};
 use rand::Rng;
-use hash_collider::{HashAdapter, Collider, stat_printer};
 
 struct MyHash;
 fn my_hash(data: (u64, u64)) -> u64 {

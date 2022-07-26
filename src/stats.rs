@@ -49,7 +49,6 @@ impl Stats {
         let search_space = 2.0_f64.powi(bits as i32);
         let h = self.hashes as f64;
         let hps = h / elapsed_secs;
-        ((2.0*search_space + h*h).sqrt() - h) * 2.0 / hps
+        ((2.0 * search_space + h * h).sqrt() - h) * 2.0 / hps
     }
 }
-
