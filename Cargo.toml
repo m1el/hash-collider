@@ -10,3 +10,7 @@ rand = "0.8.5"
 
 [dev-dependencies]
 num_cpus = "1.13.1"
+ahash = "0.7.6"
+
+[profile.release]
+debug = true
